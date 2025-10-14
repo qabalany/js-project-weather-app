@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <div>
+
+        <div class="weather-app theme-night" id="weatherApp">
+            <!-- Hamburger Menu -->
+            <button class="hamburger-menu" id="hamburgerMenu">
+            <div class="hamburger-lines">
+                <div class="hamburger-line"></div>
+                <div class="hamburger-line"></div>
+                <div class="hamburger-line"></div>
+            </div>
+        </button>
+
+        <!-- Weather Particles (rain/snow effect) -->
+        <div class="weather-particles" id="weatherParticles"></div>
+        
+        <!-- Current Weather Display -->
+            <!-- Weather Icon (will be updated by JavaScript) -->
+            <div class="weather-icon" id="weatherIcon">🌙</div>
+            
+            <!-- Main Temperature -->
+            <div class="temperature" id="temperature">14°C</div>
+            
+            <!-- City Name -->
+            <div class="city-name" id="cityName">Stockholm</div>
+            
+            <!-- Weather Description -->
+            <div class="weather-description" id="weatherDescription">Clear</div>
+            
+            <!-- Sunrise/Sunset Times -->
+            <div class="sun-times">
+                <div class="sun-time">
+                    <span>sunrise</span>
+                    <span id="sunriseTime">22:30</span>
+                </div>
+                <div class="sun-time">
+                    <span>sunset</span>
+                    <span id="sunsetTime">00:00</span>
+                </div>
+            </div>
+        </main>
+
+        <!-- 4-Day Forecast Section -->
+        <section class="forecast-section">
+            <div class="forecast-day">
+                <div class="day-name">Mon</div>
+                <div class="forecast-icon">☀️</div>
+                <div class="day-temps">26° / 12°C</div>
+            </div>
+            <div class="forecast-day">
+                <div class="day-name">Tue</div>
+                <div class="forecast-icon">🌙</div>
+                <div class="day-temps">27° / 11°C</div>
+            </div>
+            <div class="forecast-day">
+                <div class="day-name">Wed</div>
+                <div class="forecast-icon">☁️</div>
+                <div class="day-temps">26° / 14°C</div>
+            </div>
+            <div class="forecast-day">
+                <div class="day-name">Thu</div>
+                <div class="forecast-icon">☀️</div>
+                <div class="day-temps">23° / 12°C</div>
+            </div>
+            <div class="forecast-day">
+                <div class="day-name">Fri</div>
+                <div class="forecast-icon">☁️</div>
+                <div class="day-temps">15° / 9°C</div>
+            </div>
+        </section>
+
+        <!-- Navigation Arrow -->
+        <button class="nav-arrow" id="navArrow">
+            ➤
+        </button>
+    </div>
+
+    <!-- TypeScript compiled to JavaScript -->
+</div>
+</body>
+</html>

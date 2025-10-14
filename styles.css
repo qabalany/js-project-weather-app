@@ -1,0 +1,234 @@
+
+/* === THEME VARIANTS (Dark & Night) === */
+.theme-dark {
+  background: var(--color-bg-dark);
+  color: var(--color-white);
+}
+
+.theme-night {
+  background: linear-gradient(135deg, var(--color-dark-start) 0%, var(--color-dark-end) 100%);
+  color: var(--color-white);
+}
+
+/* === Morning / Light Theme === */
+.theme-morning {
+  background: var(--color-white); 
+  color: var(--color-bg-dark);      
+}
+/* Weather App Styles - Figma Design #2 Implementation */
+
+/* === DESIGN COLORS FROM FIGMA === */
+:root {
+  /* === Figma Custom Palette === */
+  --color-bg-dark: #1F2938;
+  --color-bg-medium: #292E36;
+  --color-bg-light: #242F40;
+
+  /* === Theme Colors - Night (Dark) Gradients === */
+  --color-dark-start: #6264A2;
+  --color-dark-end: #222350;
+
+  /* === Theme Colors - Day (Light) === */
+  --color-gradient-start: #8589FF;
+  --color-gradient-end: #8589FF;
+  --color-light-blue: #EAEFFB;
+  --color-light-blue-alt: #EAF1FB;
+  --color-purple-accent: #757AFF;
+
+  /* === Base Colors === */
+  --color-white: #FFFFFF;
+  --color-gray: #707070;
+  --color-black: #000000;
+  --color-yellow: #FFEC8D;
+
+  /* === Legacy/Extra Variables (for reference, can be removed if unused) === */
+  --bg-primary: #0d1117;
+  --bg-secondary: #161b22;
+  --bg-card: #21262d;
+  --neon-darkblue: #20243d;
+  --neon-blue: #173050;
+  --text-primary: #ffffff;
+  --text-secondary: #8b949e;
+  --text-muted: #6e7681;
+
+
+  /* Typography */
+  --font-size-temp-large: 4rem;
+  --font-size-city: 1.5rem;
+  --font-size-description: 1rem;
+  --font-size-forecast: 0.9rem;
+  
+  /* Spacing (Mobile-first) */
+  --spacing-xs: 0.5rem;
+  --spacing-sm: 1rem;
+  --spacing-md: 1.5rem;
+  --spacing-lg: 2rem;
+  --spacing-xl: 3rem;
+}
+
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+
+html {
+  font-size: 62.5%;
+}
+
+body {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 400;
+  font-size: 1.6rem;
+  line-height: 1.7;
+  color: var(--color-bg-dark);
+  background-color: var(--color-white);
+  margin: 0 auto;
+  height: 100vh;
+  padding: 1.5rem;
+}
+
+.main {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.5rem;
+}
+
+.main-nav {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+  height: 100%;
+}
+
+.nav-link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.sidebar {
+  background-color: lime;
+  border-radius: 1.5rem;
+  height: 100vh;
+  padding: 1rem;
+}
+
+.today-weather {
+  border-radius: 1.5rem;
+  flex: 2;
+  height: 100%;
+  padding: 1rem;
+
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.weak-weather {
+  background-color: lime;
+  border-radius: 1.3rem;
+  flex: 1;
+  height: 100%;
+  padding: 1rem;
+}
+
+
+/* SIDEBAR DEDIGHN */
+
+.nav-link {
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+
+.nav-text {
+  font-size: 1.4rem;
+  color: var(--color-bg-dark);
+}
+
+/* TODAW WEATHER DEDIGHN */
+/* TODAY WEATHR SEARCH DESIGHN */
+
+.serach-wether {
+  background-color: #6264A2;
+   border-radius: 1.3rem;
+}
+
+/* TODAY WEATHR VIEW DESIGHN */
+.today-weather-view {
+  background-color: var(--color-white);
+  border-radius: 1.3rem;
+   display: flex;
+   align-items: center;
+   justify-content: space-between;
+   height: 25rem;
+   padding: 0 2rem;
+  
+}
+
+.today-weather-title {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.today-weather-icon {
+  height: 10rem;
+  width: 10rem;
+  background: red;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+h1 {
+  font-size: 2rem;
+}
+
+h2 {
+  font-size: 4rem;
+  margin-top: 4rem;
+}
+
+h3 {
+  margin-bottom: 2rem;
+}
+
+
+  /* TODAY WEATHR FORECAST DESIGHN */
+  
+  .today-weather-forecast {
+   background-color: #6264A2;
+   border-radius: 1.3rem;
+   padding: 2rem;
+  }
+
+  .today-weather-cards {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+   .today-weather-card {
+    background-color: yellow;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    pad
+  }
+  
+  
+  
+  /* TODAY WEATHR DETAIL DESIGHN */
+
+.today-weather-details  {
+  background-color: #6264A2;
+  border-radius: 1.3rem;
+  padding: 2rem;
+}
+

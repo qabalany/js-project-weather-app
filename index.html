@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <title>Weather App - Bootcamp Project</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    
+<main class="main">
+    <!-- SIDEBAR DETAILS -->
+
+    <aside class="sidebar">
+        <nav class="main-nav">
+            <a class="nav-link" href="#">
+                <icon class="nav-icon">☀️</icon>
+                <span class="nav-text">Weather</span>
+            </a>
+            <a class="nav-link" href="#">
+                <icon class="nav-icon">☀️</icon>
+                <span class="nav-text">Advices</span>
+            </a>
+            <a class="nav-link" href="#">
+                <icon class="nav-icon">☀️</icon>
+                <span class="nav-text">Map</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- TODAY INFORMATION -->
+    <section class="today-weather">
+    <!-- SEARCHER -->
+        <section class="serach-wether">
+        <form class="weather-search__form" id="weatherForm">
+        <label for="cityInput" class="weather-search__label">
+        <input 
+        type="text" 
+        id="cityInput" 
+        class="weather-search__input" 
+        placeholder="Search your ciaty" 
+        required
+      >
+        </label>
+    </form>
+    </section>
+
+    <!-- TODAY VIEW BOARD -->
+    <section class="today-weather-view">
+        <div class="today-weather-title">
+            <div>
+            <h1>Sweden, Stockholm</h1>
+            <p>Expect high rain today</p>
+            </div>
+            <h2>31°C</h2>
+        </div>
+        <icon class="today-weather-icon">☀️</icon>
+    </section>
+
+     <!-- TODAY FORECAST -->
+    <section class="today-weather-forecast">
+        <h3>TODAYS FORECAST</h3>
+        <div class="today-weather-cards">
+            <div class="today-weather-card">
+                <p class="today-time">6:00 AM</p>
+                <icon class="today-icon">☀️</icon>
+                <p class="today-degree">25°C</p>
+            </div>
+            <div class="today-weather-card">
+                <p class="today-time">9:00 AM</p>
+            <icon class="today-icon">☀️</icon>
+            <p class="today-degree">28°C</p>
+        </div>
+        <div class="today-weather-card">
+            <p class="today-time">12:00 AM</p>
+            <icon class="today-icon">☀️</icon>
+            <p class="today-degree">28°C</p>
+        </div>
+        <div class="today-weather-card">
+            <p class="today-time">3:00 PM</p>
+            <icon class="today-icon">☀️</icon>
+            <p class="today-degree">28°C</p>
+        </div>
+        <div class="today-weather-card">
+            <p class="today-time">6:00 PM</p>
+            <icon class="today-icon">☀️</icon>
+            <p class="today-degree">28°C</p>
+        </div>
+        <div class="today-weather-card">
+            <p class="today-time">9:00 PM</p>
+            <icon class="today-icon">☀️</icon>
+            <p class="today-degree">28°C</p>
+        </div>
+    </div>
+    </section>
+    
+    <!-- TODAY DETAILS -->
+    <section class="today-weather-details">
+        <h3>ALL CONDITIONS</h3>
+        <div today-weather-details-grid>
+            <div>
+                <div class="details-up">
+                <icon class="details-icon">☀️</icon>
+                <span class="details-text">Real Feel</span>
+                </div>
+                <h4>30°C</h4>
+            </div>
+            <div>
+                <div class="details-up">
+                <icon class="details-icon">☀️</icon>
+                <span class="details-text">Chance of rain</span>
+                </div>
+                <h4>0%</h4>
+            </div>
+            <div>
+                <div class="details-up">
+                <icon class="details-icon">☀️</icon>
+                <span class="details-text">Wind</span>
+                </div>
+                <h4>0.2 km/h</h4>
+            </div>
+            <div>
+                <div class="details-up">
+                <icon class="details-icon">☀️</icon>
+                <span class="details-text">UV index</span>
+                </div>
+                <h4>3</h4>
+            </div>
+        </div>
+    </section>
+
+    </section>
+    
+    <!-- WEAK INFORMATION-->
+    <section class="weak-weather">
+        <h3>7-DAY FORECAST</h3>
+        <div class="weak-weather-card">
+            <p class="weak-day">Today</p>
+            <icon class="weak-icon">☀️</icon>
+            <p class="weak-weather">Sunny</p>
+            <p class="weak-degree">25°C</p>
+        </div>
+
+        <div class="weak-weather-card">
+            <p class="weak-day">Tue</p>
+            <icon class="weak-icon">☀️</icon>
+            <p class="weak-weather">Sunny</p>
+            <p class="weak-degree">25°C</p>
+        </div>
+
+        <div class="weak-weather-card">
+            <p class="weak-day">Wed</p>
+            <icon class="weak-icon">☀️</icon>
+            <p class="weak-weather">Sunny</p>
+            <p class="weak-degree">25°C</p>
+        </div>
+
+        <div class="weak-weather-card">
+            <p class="weak-day">Thu</p>
+            <icon class="weak-icon">☁️</icon>
+            <p class="weak-weather">Sunny</p>
+            <p class="weak-degree">25°C</p>
+        </div>
+
+        <div class="weak-weather-card">
+            <p class="weak-day">Fri</p>
+            <icon class="weak-icon">⛅</icon>
+            <p class="weak-weather">Sunny</p>
+            <p class="weak-degree">25°C</p>
+        </div>
+
+        <div class="weak-weather-card">
+            <p class="weak-day">Sat</p>
+            <icon class="weak-icon">🌧️</icon>
+            <p class="weak-weather">Sunny</p>
+            <p class="weak-degree">25°C</p>
+        </div>
+
+        <div class="weak-weather-card">
+            <p class="weak-day">Sun</p>
+            <icon class="weak-icon">🌦️</icon>
+            <p class="weak-weather">Sunny</p>
+            <p class="weak-degree">25°C</p>
+        </div>
+    </section>
+</main>
+    <script type="module" src="dist/main.js"></script>
+</body>
+</html>
