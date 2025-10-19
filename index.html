@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
+      rel="stylesheet"
+    />
+
+    <title>Weather App - Bootcamp Project</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="main">
+      <!-- SIDEBAR DETAILS -->
+
+      <aside class="sidebar">
+        <nav class="main-nav">
+          <a class="nav-link" href="#">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="nav-icon"
+            >
+              <path d="M17.5 21H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z" />
+              <path
+                d="M22 10a3 3 0 0 0-3-3h-2.207a5.502 5.502 0 0 0-10.702.5"
+              />
+            </svg>
+            <span class="nav-text">Weather</span>
+          </a>
+          <a class="nav-link" href="#">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="nav-icon"
+            >
+              <path
+                d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719"
+              />
+            </svg>
+            <span class="nav-text">Advices</span>
+          </a>
+          <a class="nav-link" href="#">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="nav-icon"
+            >
+              <path
+                d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z"
+              />
+              <path d="M15 5.764v15" />
+              <path d="M9 3.236v15" />
+            </svg>
+            <span class="nav-text">Map</span>
+          </a>
+        </nav>
+      </aside>
+      <!-- TODAY INFORMATION -->
+      <section class="today-weather">
+        <!-- SEARCHER -->
+        <section class="search-weather">
+          <form class="weather-search__form" id="weatherForm">
+            <label for="cityInput" class="weather-search__label">
+              <input
+                type="text"
+                id="cityInput"
+                class="weather-search__input"
+                placeholder="Search your ciaty"
+                required
+              />
+            </label>
+          </form>
+        </section>
+
+        <!-- TODAY VIEW BOARD -->
+        <section class="today-weather-view">
+          <div class="today-weather-title">
+            <h1>Sweden, Stockholm</h1>
+            <img
+              src="sun-svgrepo-com.svg"
+              alt="Sun icon"
+              class="today-weather-icon"
+            />
+            <div>
+              <h2>31°C</h2>
+              <p>Expect high rain today</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- TODAY FORECAST -->
+        <section class="today-weather-forecast">
+          <h3>TODAYS FORECAST</h3>
+          <div class="today-weather-cards">
+            <div class="today-weather-card active">
+              <p class="today-time">6:00 AM</p>
+              <icon class="today-icon">☀️</icon>
+              <p class="today-degree">25°C</p>
+            </div>
+            <div class="today-weather-card">
+              <p class="today-time">9:00 AM</p>
+              <icon class="today-icon">☀️</icon>
+              <p class="today-degree">28°C</p>
+            </div>
+            <div class="today-weather-card">
+              <p class="today-time">12:00 AM</p>
+              <icon class="today-icon">☀️</icon>
+              <p class="today-degree">28°C</p>
+            </div>
+            <div class="today-weather-card">
+              <p class="today-time">3:00 PM</p>
+              <icon class="today-icon">☀️</icon>
+              <p class="today-degree">28°C</p>
+            </div>
+            <div class="today-weather-card">
+              <p class="today-time">6:00 PM</p>
+              <icon class="today-icon">☀️</icon>
+              <p class="today-degree">28°C</p>
+            </div>
+            <div class="today-weather-card">
+              <p class="today-time">9:00 PM</p>
+              <icon class="today-icon">☀️</icon>
+              <p class="today-degree">28°C</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- TODAY DETAILS -->
+        <section class="today-weather-details">
+          <h3>ALL CONDITIONS</h3>
+          <div class="today-weather-details-grid">
+            <div class="today-weather-details-grid-card">
+              <div class="details-up">
+                <icon class="details-icon">☀️</icon>
+                <span class="details-text">Real Feel</span>
+              </div>
+              <h4>30°C</h4>
+            </div>
+            <div class="today-weather-details-grid-card">
+              <div class="details-up">
+                <icon class="details-icon">☀️</icon>
+                <span class="details-text">Chance of rain</span>
+              </div>
+              <h4>0%</h4>
+            </div>
+            <div class="today-weather-details-grid-card">
+              <div class="details-up">
+                <icon class="details-icon">☀️</icon>
+                <span class="details-text">Wind</span>
+              </div>
+              <h4>0.2 km/h</h4>
+            </div>
+            <div class="today-weather-details-grid-card">
+              <div class="details-up">
+                <icon class="details-icon">☀️</icon>
+                <span class="details-text">UV index</span>
+              </div>
+              <h4>3</h4>
+            </div>
+          </div>
+        </section>
+      </section>
+
+      <!-- WEAK INFORMATION-->
+      <section class="weak-weather">
+        <h3>7-DAY FORECAST</h3>
+        <div class="weak-weather-cards">
+          <div class="weak-weather-card">
+            <p class="weak-day">Today</p>
+            <div class="weak-two">
+              <icon class="weak-icon">☀️</icon>
+              <p class="weak-weather-info">Sunny</p>
+            </div>
+
+            <p class="weak-degree">25°C</p>
+          </div>
+
+          <div class="weak-weather-card">
+            <p class="weak-day">Sun</p>
+            <div class="weak-two">
+              <icon class="weak-icon">☀️</icon>
+              <p class="weak-weather-info">Sunny</p>
+            </div>
+            <p class="weak-degree">25°C</p>
+          </div>
+
+          <div class="weak-weather-card">
+            <p class="weak-day">Mon</p>
+            <div class="weak-two">
+              <icon class="weak-icon">☀️</icon>
+              <p class="weak-weather-info">Sunny</p>
+            </div>
+            <p class="weak-degree">25°C</p>
+          </div>
+
+          <div class="weak-weather-card">
+            <p class="weak-day">Tue</p>
+            <div class="weak-two">
+              <icon class="weak-icon">☀️</icon>
+              <p class="weak-weather-info">Sunny</p>
+            </div>
+            <p class="weak-degree">25°C</p>
+          </div>
+
+          <div class="weak-weather-card">
+            <p class="weak-day">Wed</p>
+            <div class="weak-two">
+              <icon class="weak-icon">☀️</icon>
+              <p class="weak-weather-info">Sunny</p>
+            </div>
+            <p class="weak-degree">25°C</p>
+          </div>
+
+          <div class="weak-weather-card">
+            <p class="weak-day">Thu</p>
+            <div class="weak-two">
+              <icon class="weak-icon">☀️</icon>
+              <p class="weak-weather-info">Sunny</p>
+            </div>
+            <p class="weak-degree">25°C</p>
+          </div>
+
+          <div class="weak-weather-card">
+            <p class="weak-day">Fri</p>
+            <div class="weak-two">
+              <icon class="weak-icon">☀️</icon>
+              <p class="weak-weather-info">Sunny</p>
+            </div>
+            <p class="weak-degree">25°C</p>
+          </div>
+        </div>
+      </section>
+    </main>
+    <script>
+      const btn = document.getElementById("themeToggleBtn");
+      const body = document.body;
+      btn.addEventListener("click", () => {
+        if (body.classList.contains("theme-morning")) {
+          body.classList.remove("theme-morning");
+          body.classList.add("theme-dark");
+          btn.textContent = "Switch to Light Mode";
+        } else {
+          body.classList.remove("theme-dark");
+          body.classList.add("theme-morning");
+          btn.textContent = "Switch to Dark Mode";
+        }
+      });
+      // Set initial state
+      if (
+        !body.classList.contains("theme-morning") &&
+        !body.classList.contains("theme-dark")
+      ) {
+        body.classList.add("theme-dark");
+        btn.textContent = "Switch to Light Mode";
+      } else if (body.classList.contains("theme-morning")) {
+        btn.textContent = "Switch to Dark Mode";
+      } else {
+        btn.textContent = "Switch to Light Mode";
+      }
+    </script>
+    <script src="/index.js"></script>
+  </body>
+</html>
