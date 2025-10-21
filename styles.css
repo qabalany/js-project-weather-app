@@ -1,3 +1,22 @@
+/* Make today-weather-details icons larger and visually appealing */
+.today-weather-details .details-icon {
+  font-size: 2.8rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.6rem;
+  height: 3.6rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #e0f7fa 60%, #b3e5fc 100%);
+  box-shadow: 0 2px 8px #0001;
+  margin-right: 1rem;
+  margin-bottom: 0.2rem;
+  transition: transform 0.2s;
+}
+.today-weather-details .details-icon:hover {
+  transform: scale(1.15) rotate(-8deg);
+  background: linear-gradient(135deg, #b3e5fc 60%, #e0f7fa 100%);
+}
 /* Make weather icons darker and more distinct */
 .today-icon-img,
 .weak-icon-img {
