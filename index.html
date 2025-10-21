@@ -10,7 +10,7 @@
       rel="stylesheet"
     />
 
-    <title>Weather App - Bootcamp Project</title>
+    <title>Weather App -  Project</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
@@ -86,14 +86,12 @@
         <!-- SEARCHER -->
         <section class="search-weather">
           <form class="weather-search__form" id="weatherForm">
-            <label for="cityInput" class="weather-search__label">
-              <input
-                type="text"
-                id="cityInput"
-                class="weather-search__input"
-                placeholder="Search your ciaty"
-                required
-              />
+            <label for="citySelect" class="weather-search__label">
+              <select id="citySelect" class="weather-search__input" required>
+                <option value="Stockholm">Stockholm</option>
+                <option value="Malmö">Malmö</option>
+                <option value="Gothenburg">Gothenburg</option>
+              </select>
             </label>
           </form>
         </section>
@@ -103,7 +101,7 @@
           <div class="today-weather-title">
             <h1>Sweden, Stockholm</h1>
             <img
-              src="sun-svgrepo-com.svg"
+              src=""
               alt="Sun icon"
               class="today-weather-icon"
             />
@@ -258,32 +256,7 @@
       </section>
     </main>
     <script>
-      const btn = document.getElementById("themeToggleBtn");
-      const body = document.body;
-      btn.addEventListener("click", () => {
-        if (body.classList.contains("theme-morning")) {
-          body.classList.remove("theme-morning");
-          body.classList.add("theme-dark");
-          btn.textContent = "Switch to Light Mode";
-        } else {
-          body.classList.remove("theme-dark");
-          body.classList.add("theme-morning");
-          btn.textContent = "Switch to Dark Mode";
-        }
-      });
-      // Set initial state
-      if (
-        !body.classList.contains("theme-morning") &&
-        !body.classList.contains("theme-dark")
-      ) {
-        body.classList.add("theme-dark");
-        btn.textContent = "Switch to Light Mode";
-      } else if (body.classList.contains("theme-morning")) {
-        btn.textContent = "Switch to Dark Mode";
-      } else {
-        btn.textContent = "Switch to Light Mode";
-      }
     </script>
-    <script src="/index.js"></script>
+    <script type="module" src="/index.js"></script>
   </body>
 </html>
