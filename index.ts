@@ -69,24 +69,7 @@ function degToCompass(num: number): string {
   return arr[(val % 16)] || "N";
 }
 
-async function fetchSunriseSunset(lat: number, lon: number): Promise<{sunrise: string, sunset: string}> {
-  const today = new Date();
-  const yyyy = today.getFullYear();
-  const mm = String(today.getMonth() + 1).padStart(2, '0');
-  const dd = String(today.getDate()).padStart(2, '0');
-  const dateStr = `${yyyy}-${mm}-${dd}`;
-  const url = `https://api.sunrise-sunset.org/json?lat=${lat}&lng=${lon}&date=${dateStr}&formatted=0`;
-  try {
-    const resp = await fetch(url);
-    const data = await resp.json();
-    if (data.status === 'OK') {
-      const sunrise = new Date(data.results.sunrise).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-      const sunset = new Date(data.results.sunset).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-      return {sunrise, sunset};
-    }
-  } catch (e) {}
-  return {sunrise: 'N/A', sunset: 'N/A'};
-}
+
 
 
 // ===== 3. Rendering Functions =====
@@ -101,21 +84,6 @@ function renderTodayWeatherView(cityName: string, data: any) {
   const icon = typeof code === 'number' ? getWeatherIcon(code) : '❓';
   const desc = typeof code === 'number' ? getWeatherDescription(code) : 'Unknown';
 
-  // Details grid values
-  const rh = getParam(now, 'r');
-  const ws = getParam(now, 'ws');
-  const wd = getParam(now, 'wd');
-  let humidexDisplay = 'N/A';
-  if (typeof temp === 'number' && typeof rh === 'number') {
-    const dewPoint = temp - ((100 - rh) / 5);
-    const e = 6.11 * Math.exp(5417.7530 * (1/273.16 - 1/(273.15 + dewPoint)));
-    const humidex = temp + 0.5555 * (e - 10);
-    humidexDisplay = humidex.toFixed(1) + '\u00b0C';
-  }
-  const humidityDisplay = typeof rh === 'number' ? rh + '%' : 'N/A';
-  const windDisplay = (typeof ws === 'number' && typeof wd === 'number')
-    ? `${ws.toFixed(1)} km/h ${degToCompass(wd)}` : 'N/A';
-
   // Update UI
   const h1 = section.querySelector('h1');
   if (h1) h1.textContent = `Sweden, ${cityName}`;
@@ -128,58 +96,6 @@ function renderTodayWeatherView(cityName: string, data: any) {
   if (h2) h2.textContent = `${temp}\u00b0C`;
   const p = section.querySelector('p');
   if (p) p.textContent = desc;
-
-  // Details grid
-  const detailsGrid = document.querySelector('.today-weather-details-grid');
-  if (detailsGrid) {
-    const cards = detailsGrid.querySelectorAll('.today-weather-details-grid-card');
-    if (cards.length > 0) {
-      const realFeelCard = cards[0];
-      if (realFeelCard) {
-        const h4 = realFeelCard.querySelector('h4');
-        if (h4) h4.textContent = humidexDisplay;
-      }
-    }
-    if (cards.length > 1) {
-      const humidityCard = cards[1];
-      if (humidityCard) {
-        const h4 = humidityCard.querySelector('h4');
-        if (h4) h4.textContent = humidityDisplay;
-      }
-    }
-    if (cards.length > 2) {
-      const windCard = cards[2];
-      if (windCard) {
-        const h4 = windCard.querySelector('h4');
-        if (h4) h4.textContent = windDisplay;
-      }
-    }
-    if (cards.length > 3) {
-      const sunCard = cards[3];
-      if (sunCard) {
-        const h4 = sunCard.querySelector('h4');
-        if (h4) h4.textContent = '...';
-      }
-    }
-  }
-
-  // Fetch and update sunrise/sunset times
-  const city = CITIES.find(c => c.name === cityName);
-  if (city) {
-    fetchSunriseSunset(city.lat, city.lon).then(({sunrise, sunset}) => {
-      const detailsGrid = document.querySelector('.today-weather-details-grid');
-      if (detailsGrid) {
-        const cards = detailsGrid.querySelectorAll('.today-weather-details-grid-card');
-        if (cards.length > 3) {
-          const sunCard = cards[3];
-          if (sunCard) {
-            const h4 = sunCard.querySelector('h4');
-            if (h4) h4.textContent = `↑${sunrise} ↓${sunset}`;
-          }
-        }
-      }
-    });
-  }
 }
 
 
@@ -218,7 +134,7 @@ function renderWeakWeather(data: any) {
   const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   let dayIndex = 0;
   for (const date in days) {
-    if (dayIndex >= 7) break;
+    if (dayIndex >= 4) break;
     const entries = days[date];
     if (!entries || entries.length === 0) continue;
     const temps = entries.map((e: any) => getParam(e, 't')).filter((v) => typeof v === 'number') as number[];
@@ -250,7 +166,6 @@ function renderWeakWeather(data: any) {
 
 window.addEventListener('DOMContentLoaded', () => {
   const citySelect = document.getElementById('citySelect') as HTMLSelectElement | null;
-  const geoBtn = document.getElementById('geoLocateBtn') as HTMLButtonElement | null;
   if (!citySelect) return;
 
   async function loadAndRenderWeather(cityName: string) {
@@ -267,48 +182,11 @@ window.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  async function loadAndRenderWeatherByCoords(lat: number, lon: number) {
-    try {
-      const data = await fetchWeatherData(lat, lon);
-      renderTodayWeatherView('Current Location', data);
-      renderTodayWeatherForecast(data);
-      renderWeakWeather(data);
-      if (citySelect) citySelect.value = '';
-    } catch (err) {
-      alert('Failed to fetch weather for your location.');
-      console.error('Geolocation weather error:', err);
-    }
-  }
-
   citySelect.addEventListener('change', async () => {
     if (citySelect.value) {
       await loadAndRenderWeather(citySelect.value);
     }
   });
-
-  if (geoBtn) {
-    geoBtn.addEventListener('click', () => {
-      if (!navigator.geolocation) {
-        alert('Geolocation is not supported by your browser.');
-        return;
-      }
-      geoBtn.disabled = true;
-      geoBtn.textContent = 'Locating...';
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          geoBtn.disabled = false;
-          geoBtn.textContent = '🌍 My Location';
-          const { latitude, longitude } = position.coords;
-          loadAndRenderWeatherByCoords(latitude, longitude);
-        },
-        (error) => {
-          geoBtn.disabled = false;
-          geoBtn.textContent = '🌍 My Location';
-          alert('Unable to retrieve your location.');
-        }
-      );
-    });
-  }
 
   citySelect.value = 'Stockholm';
   loadAndRenderWeather('Stockholm');
