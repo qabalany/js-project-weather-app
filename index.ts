@@ -1,5 +1,4 @@
 
-// ===== 1. Types & Constants =====
 
 type City = {
   name: string;
@@ -34,57 +33,79 @@ const WEATHER_DESCRIPTIONS: { [key: number]: string } = {
   24: 'Hail', 25: 'Drizzle', 26: 'Freezing drizzle', 27: 'Mixed precipitation'
 };
 
-// ===== 2. Utility Functions =====
+
+function getDayLabel(date: string, index: number, dayNames: string[]): string {
+  if (index === 0) return 'Today';
+  const dateObj = new Date(date);
+  return dayNames[dateObj.getDay()] ?? '';
+}
+
+function getMiddleEntry(entries: any[]): any {
+  return entries[Math.floor(entries.length / 2)];
+}
+
+
+
+function buildDayForecastCard(container: HTMLElement, date: string, entries: any[], dayIndex: number, dayNames: string[]) {
+  const { min: minTemp, max: maxTemp } = getMinMaxTemp(entries);
+  const middleEntry = getMiddleEntry(entries);
+  const weatherCode = getParam(middleEntry, 'Wsymb2');
+  const { icon, desc } = getIconAndDescription(weatherCode);
+  const dayLabel = getDayLabel(date, dayIndex, dayNames);
+  const card = createDailyForecastCard(dayLabel, icon, desc, String(minTemp), String(maxTemp));
+  container.appendChild(card);
+}
+
+
+
+
+function getMinMaxTemp(entries: any[]): { min: number | string, max: number | string } {
+  const temps = entries.map((entry: any) => getParam(entry, 't')).filter((v) => typeof v === 'number') as number[];
+  if (!temps.length) return { min: '?', max: '?' };
+  return { min: Math.min(...temps), max: Math.max(...temps) };
+}
+
+function getIconAndDescription(code: number | undefined): { icon: string, desc: string } {
+  return {
+    icon: WEATHER_ICON_PATHS[code as number] ?? '❓',
+    desc: WEATHER_DESCRIPTIONS[code as number] ?? 'Unknown'
+  };
+}
+
+
+
+
 
 function getSmhiForecastUrl(lat: number, lon: number): string {
   return `https://opendata-download-metfcst.smhi.se/api/category/pmp3g/version/2/geotype/point/lon/${lon}/lat/${lat}/data.json`;
 }
+
 
 function getParam(entry: any, paramName: string): number | undefined {
   const param = entry.parameters.find((p: { name: string; values: number[] }) => p.name === paramName);
   return param ? param.values[0] : undefined;
 }
 
-function getWeatherIcon(code: number) {
-  return WEATHER_ICON_PATHS[code] || '❓';
-}
-
-function getWeatherDescription(code: number) {
-  return WEATHER_DESCRIPTIONS[code] || '⚠️';
-}
 
 function groupByDate(timeSeries: any[]) {
   const days: { [date: string]: any[] } = {};
   for (const entry of timeSeries) {
-    const date = entry.validTime.split('T')[0];
-    if (!days[date]) days[date] = [];
-    days[date].push(entry);
+    const dateStr = entry.validTime.split('T')[0];
+    if (!days[dateStr]) days[dateStr] = [];
+    days[dateStr].push(entry);
   }
   return days;
 }
 
-function degToCompass(num: number): string {
-  const val = Math.floor((num / 22.5) + 0.5);
-  const arr = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"];
-  return arr[(val % 16)] || "N";
-}
 
-
-
-
-// ===== 3. Rendering Functions =====
-
-// 3.1 Today Weather View
-function renderTodayWeatherView(cityName: string, data: any) {
+function showCurrentWeather(cityName: string, data: any) {
   const section = document.querySelector('.today-weather-view .today-weather-title');
   if (!section) return;
   const now = data.timeSeries[0];
   const temp = getParam(now, 't');
   const code = getParam(now, 'Wsymb2');
-  const icon = typeof code === 'number' ? getWeatherIcon(code) : '❓';
-  const desc = typeof code === 'number' ? getWeatherDescription(code) : 'Unknown';
+  const { icon, desc } = getIconAndDescription(code);
 
-  // Update UI
   const h1 = section.querySelector('h1');
   if (h1) h1.textContent = `Sweden, ${cityName}`;
   const img = section.querySelector('img.today-weather-icon') as HTMLImageElement | null;
@@ -93,76 +114,65 @@ function renderTodayWeatherView(cityName: string, data: any) {
     img.alt = desc;
   }
   const h2 = section.querySelector('h2');
-  if (h2) h2.textContent = `${temp}\u00b0C`;
+    if (h2) h2.textContent = temp !== undefined ? `${temp}\u00b0C` : '';
   const p = section.querySelector('p');
   if (p) p.textContent = desc;
 }
 
 
-
-
-// 3.2 Today Hourly Forecast
-function renderTodayWeatherForecast(data: any) {
+function showHourlyForecast(data: any) {
   const container = document.querySelector('.today-weather-forecast .today-weather-cards');
   if (!container) return;
   container.innerHTML = '';
-  const timeSeries = data.timeSeries.slice(0, 12);
+  const timeSeries = data.timeSeries.slice(0, 12); 
   for (let i = 0; i < timeSeries.length; i += 2) {
     const entry = timeSeries[i];
     const time = entry.validTime.split('T')[1].slice(0, 5);
     const temp = getParam(entry, 't');
     const code = getParam(entry, 'Wsymb2');
-    const icon = typeof code === 'number' ? getWeatherIcon(code) : '❓';
+    const { icon } = getIconAndDescription(code);
     const card = document.createElement('div');
     card.className = 'today-weather-card' + (i === 0 ? ' active' : '');
     card.innerHTML = `
       <p class="today-time">${time}</p>
       ${typeof icon === 'string' && icon.endsWith('.svg') ? `<img class='today-icon-img' src='${icon}' alt='' style='width:32px;height:32px;vertical-align:middle;'/>` : `<icon class='today-icon'>${icon}</icon>`}
-      <p class="today-degree">${temp}\u00b0C</p>
+        <p class="today-degree">${temp}\u00b0C</p>
     `;
     container.appendChild(card);
   }
 }
 
+function createDailyForecastCard(dayLabel: string, icon: string, desc: string, minTemp: number | string, maxTemp: number | string): HTMLDivElement {
+  const card = document.createElement('div');
+  card.className = 'weak-weather-card';
+  card.innerHTML = `
+    <p class="weak-day">${dayLabel}</p>
+    <div class="weak-two">
+      ${typeof icon === 'string' && icon.endsWith('.svg') ? `<img class='weak-icon-img' src='${icon}' alt='${desc}' style='width:32px;height:32px;vertical-align:middle;'/>` : `<icon class='weak-icon'>${icon}</icon>`}
+      <p class="weak-weather-info">${desc}</p>
+    </div>
+    <p class="weak-degree">${minTemp} / ${maxTemp}</p>
+  `;
+  return card;
+}
 
-// 3.3 7-Day Forecast
-function renderWeakWeather(data: any) {
-  const container = document.querySelector('.weak-weather-cards');
+function showDailyForecast(data: any) {
+  const container = document.querySelector('.weak-weather-cards') as HTMLElement | null;
   if (!container) return;
   container.innerHTML = '';
-  const days = groupByDate(data.timeSeries);
+
+  const daysByDate = groupByDate(data.timeSeries);
   const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  let dayIndex = 0;
-  for (const date in days) {
-    if (dayIndex >= 4) break;
-    const entries = days[date];
+  let shownDays = 0;
+
+  for (const date in daysByDate) {
+    if (shownDays >= 4) break;
+    const entries = daysByDate[date];
     if (!entries || entries.length === 0) continue;
-    const temps = entries.map((e: any) => getParam(e, 't')).filter((v) => typeof v === 'number') as number[];
-    const minTemp = temps.length ? Math.min(...temps) : '?';
-    const maxTemp = temps.length ? Math.max(...temps) : '?';
-    const midEntry = entries[Math.floor(entries.length / 2)];
-    const code = getParam(midEntry, 'Wsymb2');
-    const icon = typeof code === 'number' ? getWeatherIcon(code) : '❓';
-    const desc = typeof code === 'number' ? getWeatherDescription(code) : 'Unknown';
-    const d = new Date(date);
-    const dayName = dayIndex === 0 ? 'Today' : dayNames[d.getDay()];
-    const card = document.createElement('div');
-    card.className = 'weak-weather-card';
-    card.innerHTML = `
-      <p class="weak-day">${dayName}</p>
-      <div class="weak-two">
-        ${typeof icon === 'string' && icon.endsWith('.svg') ? `<img class='weak-icon-img' src='${icon}' alt='${desc}' style='width:32px;height:32px;vertical-align:middle;'/>` : `<icon class='weak-icon'>${icon}</icon>`}
-        <p class="weak-weather-info">${desc}</p>
-      </div>
-      <p class="weak-degree">${minTemp} / ${maxTemp}</p>
-    `;
-    container.appendChild(card);
-    dayIndex++;
+    buildDayForecastCard(container as HTMLElement, date, entries, shownDays, dayNames);
+    shownDays++;
   }
 }
-
-
-// ===== 4. Main Event Handler =====
 
 window.addEventListener('DOMContentLoaded', () => {
   const citySelect = document.getElementById('citySelect') as HTMLSelectElement | null;
@@ -173,9 +183,9 @@ window.addEventListener('DOMContentLoaded', () => {
     if (selectedCity) {
       try {
         const data = await fetchWeatherData(selectedCity.lat, selectedCity.lon);
-        renderTodayWeatherView(selectedCity.name, data);
-        renderTodayWeatherForecast(data);
-        renderWeakWeather(data);
+        showCurrentWeather(selectedCity.name, data);
+        showHourlyForecast(data);
+        showDailyForecast(data);
       } catch (err) {
         console.error('Failed to fetch weather data:', err);
       }
@@ -191,9 +201,6 @@ window.addEventListener('DOMContentLoaded', () => {
   citySelect.value = 'Stockholm';
   loadAndRenderWeather('Stockholm');
 });
-
-
-// ===== 5. Fetch Weather Data =====
 
 async function fetchWeatherData(lat: number, lon: number) {
   const url = getSmhiForecastUrl(lat, lon);
