@@ -1,3 +1,8 @@
+/* Make weather icons darker and more distinct */
+.today-icon-img,
+.weak-icon-img {
+  filter: brightness(0.5) contrast(1.4);
+}
 /* Light mode card text color */
 .theme-morning .today-weather-card,
 .theme-morning .weak-weather-card {
@@ -408,7 +413,16 @@ h2 {
 h4 {
   font-weight: 600;
   font-size: 2rem;
-}
+  }
+  /* 7-day forecast temperature: bigger and bolder */
+  .weak-degree {
+  font-weight: 500;
+  font-size: 1.3rem;
+  color: inherit;
+  margin-top: 0.5rem;
+  margin-bottom: 0.2rem;
+  letter-spacing: 0.02em;
+  }
 
 /* TODAY WEATHER DETAIL DESIGHN */
 .today-weather-details {
@@ -515,5 +529,8 @@ h4 {
 
 .weak-two {
   display: flex;
-  gap: 2rem;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 0.6rem;
 }
