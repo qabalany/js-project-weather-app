@@ -1,302 +1,298 @@
-// ===== 1. Types & Constants =====
-const CITIES = [
-    { name: 'Stockholm', lat: 59.3293, lon: 18.0686 },
-    { name: 'Malmö', lat: 55.605, lon: 13.0038 },
-    { name: 'Gothenburg', lat: 57.7089, lon: 11.9746 }
-];
-const WEATHER_ICON_PATHS = {
-    1: 'icons/night/01.svg', 2: 'icons/night/02.svg', 3: 'icons/night/03.svg',
-    4: 'icons/night/04.svg', 5: 'icons/night/05.svg', 6: 'icons/night/06.svg',
-    7: 'icons/night/07.svg', 8: 'icons/night/08.svg', 9: 'icons/night/09.svg',
-    10: 'icons/night/10.svg', 11: 'icons/night/11.svg', 12: 'icons/night/12.svg',
-    13: 'icons/night/13.svg', 14: 'icons/night/14.svg', 15: 'icons/night/15.svg',
-    16: 'icons/night/16.svg', 17: 'icons/night/17.svg', 18: 'icons/night/18.svg',
-    19: 'icons/night/19.svg', 20: 'icons/night/20.svg', 21: 'icons/night/21.svg',
-    22: 'icons/night/22.svg', 23: 'icons/night/23.svg', 24: 'icons/night/24.svg',
-    25: 'icons/night/25.svg', 26: 'icons/night/26.svg', 27: 'icons/night/27.svg'
-};
-const WEATHER_DESCRIPTIONS = {
-    1: 'Clear', 2: 'Nearly clear', 3: 'Variable clouds', 4: 'Halfclear', 5: 'Cloudy',
-    6: 'Overcast', 7: 'Fog', 8: 'Light rain', 9: 'Rain showers', 10: 'Heavy rain',
-    11: 'Thunder', 12: 'Sleet', 13: 'Light sleet', 14: 'Light snow', 15: 'Snow showers',
-    16: 'Heavy snow', 17: 'Light freezing rain', 18: 'Rain', 19: 'Heavy rain',
-    20: 'Storm', 21: 'Light snow showers', 22: 'Snow', 23: 'Heavy snow showers',
-    24: 'Hail', 25: 'Drizzle', 26: 'Freezing drizzle', 27: 'Mixed precipitation'
-};
-// ===== 2. Utility Functions =====
-function getSmhiForecastUrl(lat, lon) {
-    return `https://opendata-download-metfcst.smhi.se/api/category/pmp3g/version/2/geotype/point/lon/${lon}/lat/${lat}/data.json`;
+
+//  Den här filen gör 3 saker:
+//   1) Hämtar väderdata från SMHI (och soltider från sunrise-sunset)
+//   2) Plockar ut temperatur, väderkod, vind, luftfuktighet m.m.
+//   3) Skriver in (renderar) allt i din HTML (id/klass som du redan har)
+//
+//  Läsordning:
+//   1. Grunddata (städer, ikoner, text)
+//   2. Små hjälpare (URL, soltider, värdehämtning)
+//   3. Hämta väder från SMHI
+//   4. Rendera: today / hourly / forecast
+//   5. “Huvudprogram”: eventlyssnare och startläge
+
+
+
+// 1) GRUNDDATA
+
+// (A) Städer du kan välja i <select>. Varje stad har lat/lon (koordinater)
+const cities = [
+  { name: "Stockholm",  lat: 59.3293, lon: 18.0686 },
+  { name: "Malmö",      lat: 55.6050, lon: 13.0038 },
+  { name: "Gothenburg", lat: 57.7089, lon: 11.9746 }
+]
+
+// (B) Ikon-loop: genererar filvägarna för vädersymboler 01–27
+//     Fördelen med loop: du slipper skriva 27 rader för hand och kan byta tema (night/day)
+//     genom att bara ändra "icons/night/" till "icons/day/" om du vill.
+const icons = {}
+for (let i = 1; i <= 27; i++) {
+  // padStart(2, "0") gör 1 -> "01", 9 -> "09", 12 -> "12"
+  icons[i] = `icons/night/${String(i).padStart(2, "0")}.svg`
 }
-function getParam(entry, paramName) {
-    const param = entry.parameters.find((p) => p.name === paramName);
-    return param ? param.values[0] : undefined;
+
+// (C) SMHI:s väderkoder -> läsbar text. (Kortfattat, kan anpassas)
+const weatherText = {
+  1: "Clear sky", 2: "Almost clear", 3: "Variable clouds",
+  4: "Half clear", 5: "Cloudy", 6: "Overcast",
+  7: "Fog", 8: "Light rain", 9: "Rain showers",
+  10: "Heavy rain", 11: "Thunder", 12: "Sleet", 13: "Light sleet",
+  14: "Light snow", 15: "Snow showers", 16: "Heavy snow",
+  17: "Freezing rain", 18: "Rain", 19: "Heavy rain", 20: "Storm",
+  21: "Light snow showers", 22: "Snow", 23: "Heavy snow showers",
+  24: "Hail", 25: "Drizzle", 26: "Freezing drizzle", 27: "Mixed precipitation"
 }
-function getWeatherIcon(code) {
-    return WEATHER_ICON_PATHS[code] || '❓';
+
+
+// 2) SMÅ HJÄLPARE
+
+// (A) Bygger SMHI-URL för en punktprognos vid lat/lon.
+//     SMHI:s öppna API för "3-timmars prognos" (pmp3g) -> JSON
+function getSmhiUrl(lat, lon) {
+  return `https://opendata-download-metfcst.smhi.se/api/category/pmp3g/version/2/geotype/point/lon/${lon}/lat/${lat}/data.json`
 }
-function getWeatherDescription(code) {
-    return WEATHER_DESCRIPTIONS[code] || '⚠️';
+
+// (B) Hämtar ett specifikt parameter-värde ur en "timeSeries"-post.
+//     SMHI skickar många parametrar (t=temp, r=luftfukt, ws=vindhast, Wsymb2=väderkod).
+//     Den här funktionen letar upp rätt parameter (med name===paramName) och returnerar första värdet.
+function pick(entry, paramName) {
+  const param = entry.parameters.find(p => p.name === paramName)
+  return param ? param.values[0] : undefined
 }
+
+// (C) Delar upp SMHI:s långa tidslista i "påse per datum", t.ex.
+//     "2025-10-22": [..tider..], "2025-10-23": [..tider..]
 function groupByDate(timeSeries) {
-    const days = {};
-    for (const entry of timeSeries) {
-        const date = entry.validTime.split('T')[0];
-        if (!days[date])
-            days[date] = [];
-        days[date].push(entry);
-    }
-    return days;
+  const groups = {}
+  timeSeries.forEach(entry => {
+    const date = entry.validTime.split("T")[0] // "YYYY-MM-DDTHH:mm" -> "YYYY-MM-DD"
+    if (!groups[date]) groups[date] = []
+    groups[date].push(entry)
+  })
+  return groups
 }
-function degToCompass(num) {
-    const val = Math.floor((num / 22.5) + 0.5);
-    const arr = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"];
-    return arr[(val % 16)] || "N";
+
+// (D) Hämtar soluppgång/solnedgång från sunrise-sunset.org.
+//     Används för detaljkortet "Sunrise / Sunset".
+async function getSunTimes(lat, lon) {
+  const today = new Date().toISOString().split("T")[0] // "YYYY-MM-DD"
+  const url = `https://api.sunrise-sunset.org/json?lat=${lat}&lng=${lon}&date=${today}&formatted=0`
+
+  try {
+    const res = await fetch(url)
+    const data = await res.json()
+    if (data.status === "OK") {
+      // Gör ISO-tider läsbara enligt användarens locale (2 siffror timme:minut)
+      const sunrise = new Date(data.results.sunrise)
+        .toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+      const sunset  = new Date(data.results.sunset)
+        .toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+      return { sunrise, sunset }
+    }
+  } catch (err) {
+    console.log("Soltider kunde inte hämtas:", err)
+  }
+  // Fallback om API:et inte svarar
+  return { sunrise: "N/A", sunset: "N/A" }
 }
-async function fetchSunriseSunset(lat, lon) {
-    const today = new Date();
-    const yyyy = today.getFullYear();
-    const mm = String(today.getMonth() + 1).padStart(2, '0');
-    const dd = String(today.getDate()).padStart(2, '0');
-    const dateStr = `${yyyy}-${mm}-${dd}`;
-    const url = `https://api.sunrise-sunset.org/json?lat=${lat}&lng=${lon}&date=${dateStr}&formatted=0`;
-    try {
-        const resp = await fetch(url);
-        const data = await resp.json();
-        if (data.status === 'OK') {
-            const sunrise = new Date(data.results.sunrise).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            const sunset = new Date(data.results.sunset).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            return { sunrise, sunset };
-        }
-    }
-    catch (e) { }
-    return { sunrise: 'N/A', sunset: 'N/A' };
+
+
+
+// 3) HÄMTA VÄDER (SMHI)
+
+// Hämtar JSON från SMHI för angivna koordinater.
+// Returnerar ett objekt med bl.a. "timeSeries" (lista över tider).
+async function getWeather(lat, lon) {
+  const url = getSmhiUrl(lat, lon)
+  const res = await fetch(url)
+  // Obs: här hoppar vi över extra try/catch för att hålla "Technigo-style" enkelt.
+  // Vill du göra robust: lägg till kontroll på res.ok, annars alert/logga fel.
+  const data = await res.json()
+  return data
 }
-// ===== 3. Rendering Functions =====
-// 3.1 Today Weather View
-function renderTodayWeatherView(cityName, data) {
-    const section = document.querySelector('.today-weather-view .today-weather-title');
-    if (!section)
-        return;
-    const now = data.timeSeries[0];
-    const temp = getParam(now, 't');
-    const code = getParam(now, 'Wsymb2');
-    const icon = typeof code === 'number' ? getWeatherIcon(code) : '❓';
-    const desc = typeof code === 'number' ? getWeatherDescription(code) : 'Unknown';
-    // Details grid values
-    const rh = getParam(now, 'r');
-    const ws = getParam(now, 'ws');
-    const wd = getParam(now, 'wd');
-    let humidexDisplay = 'N/A';
-    if (typeof temp === 'number' && typeof rh === 'number') {
-        const dewPoint = temp - ((100 - rh) / 5);
-        const e = 6.11 * Math.exp(5417.7530 * (1 / 273.16 - 1 / (273.15 + dewPoint)));
-        const humidex = temp + 0.5555 * (e - 10);
-        humidexDisplay = humidex.toFixed(1) + '\u00b0C';
-    }
-    const humidityDisplay = typeof rh === 'number' ? rh + '%' : 'N/A';
-    const windDisplay = (typeof ws === 'number' && typeof wd === 'number')
-        ? `${ws.toFixed(1)} km/h ${degToCompass(wd)}` : 'N/A';
-    // Update UI
-    const h1 = section.querySelector('h1');
-    if (h1)
-        h1.textContent = `Sweden, ${cityName}`;
-    const img = section.querySelector('img.today-weather-icon');
-    if (img && typeof icon === 'string' && icon.endsWith('.svg')) {
-        img.src = icon;
-        img.alt = desc;
-    }
-    const h2 = section.querySelector('h2');
-    if (h2)
-        h2.textContent = `${temp}\u00b0C`;
-    const p = section.querySelector('p');
-    if (p)
-        p.textContent = desc;
-    // Details grid
-    const detailsGrid = document.querySelector('.today-weather-details-grid');
-    if (detailsGrid) {
-        const cards = detailsGrid.querySelectorAll('.today-weather-details-grid-card');
-        if (cards.length > 0) {
-            const realFeelCard = cards[0];
-            if (realFeelCard) {
-                const h4 = realFeelCard.querySelector('h4');
-                if (h4)
-                    h4.textContent = humidexDisplay;
-            }
-        }
-        if (cards.length > 1) {
-            const humidityCard = cards[1];
-            if (humidityCard) {
-                const h4 = humidityCard.querySelector('h4');
-                if (h4)
-                    h4.textContent = humidityDisplay;
-            }
-        }
-        if (cards.length > 2) {
-            const windCard = cards[2];
-            if (windCard) {
-                const h4 = windCard.querySelector('h4');
-                if (h4)
-                    h4.textContent = windDisplay;
-            }
-        }
-        if (cards.length > 3) {
-            const sunCard = cards[3];
-            if (sunCard) {
-                const h4 = sunCard.querySelector('h4');
-                if (h4)
-                    h4.textContent = '...';
-            }
-        }
-    }
-    // Fetch and update sunrise/sunset times
-    const city = CITIES.find(c => c.name === cityName);
-    if (city) {
-        fetchSunriseSunset(city.lat, city.lon).then(({ sunrise, sunset }) => {
-            const detailsGrid = document.querySelector('.today-weather-details-grid');
-            if (detailsGrid) {
-                const cards = detailsGrid.querySelectorAll('.today-weather-details-grid-card');
-                if (cards.length > 3) {
-                    const sunCard = cards[3];
-                    if (sunCard) {
-                        const h4 = sunCard.querySelector('h4');
-                        if (h4)
-                            h4.textContent = `↑${sunrise} ↓${sunset}`;
-                    }
-                }
-            }
-        });
-    }
+
+// 4) RENDERA (SKRIV IN I HTML)
+
+// (A) Dagens vy (överst: stad + stor temperatur + beskrivning + ikon + 4 minikort)
+function renderToday(data, cityName, lat, lon) {
+  // 1) Hämta "nu" = första posten i timeSeries
+  const now = data.timeSeries[0]
+
+  // 2) Plocka ut nyckelvärden
+  const temp = pick(now, "t")                // temperatur °C (Number)
+  const code = pick(now, "Wsymb2")           // väderkod 1..27 (Number)
+  const desc = weatherText[code] || "—"      // textbeskrivning
+  const icon = icons[code] || ""             // ikonens filväg
+  const rh   = pick(now, "r")                // luftfuktighet %
+  const ws   = pick(now, "ws")               // vindhastighet m/s (SMHI)
+  // (valfritt) konvertera m/s -> km/h: m/s * 3.6
+  const windKmH = typeof ws === "number" ? (ws * 3.6) : undefined
+
+  // 3) Fyll rubrikerna i den stora "today"-titeln
+  const titleEl = document.querySelector(".today-weather-view .today-weather-title")
+  titleEl.querySelector("h1").textContent = `Sweden, ${cityName}`
+  titleEl.querySelector("h2").textContent = `${temp}°C`
+  titleEl.querySelector("p").textContent  = desc
+
+  // 4) Byt bild på ikonen (img.today-weather-icon finns i HTML)
+  const img = titleEl.querySelector("img.today-weather-icon")
+  if (img) {
+    img.src = icon
+    img.alt = desc
+  }
+
+  // 5) Uppdatera de fyra små detaljkorten (“ALL CONDITIONS”)
+  //    Ordning i din HTML:
+  //     [0] Real Feel (vi förenklar -> samma som temp)
+  //     [1] Humidity
+  //     [2] Wind (km/h)
+  //     [3] Sunrise / Sunset (hämtas asynkront)
+  const detailValues = document.querySelectorAll(".today-weather-details-grid-card h4")
+  if (detailValues[0]) detailValues[0].textContent = (temp != null ? `${temp}°C` : "N/A")
+  if (detailValues[1]) detailValues[1].textContent = (rh   != null ? `${rh}%`   : "N/A")
+  if (detailValues[2]) detailValues[2].textContent = (windKmH != null ? `${windKmH.toFixed(1)} km/h` : "N/A")
+  if (detailValues[3]) detailValues[3].textContent = "Loading…"
+
+  // 6) Hämta soltiderna för vald plats och skriv in när svaret kommer
+  getSunTimes(lat, lon).then(({ sunrise, sunset }) => {
+    if (detailValues[3]) detailValues[3].textContent = `↑${sunrise}  ↓${sunset}`
+  })
 }
-// 3.2 Today Hourly Forecast
-function renderTodayWeatherForecast(data) {
-    const container = document.querySelector('.today-weather-forecast .today-weather-cards');
-    if (!container)
-        return;
-    container.innerHTML = '';
-    const timeSeries = data.timeSeries.slice(0, 12);
-    for (let i = 0; i < timeSeries.length; i += 2) {
-        const entry = timeSeries[i];
-        const time = entry.validTime.split('T')[1].slice(0, 5);
-        const temp = getParam(entry, 't');
-        const code = getParam(entry, 'Wsymb2');
-        const icon = typeof code === 'number' ? getWeatherIcon(code) : '❓';
-        const card = document.createElement('div');
-        card.className = 'today-weather-card' + (i === 0 ? ' active' : '');
-        card.innerHTML = `
+
+// (B) Timprognos för idag (de små korten med klockslag + temp + ikon)
+function renderHourly(data) {
+  const container = document.querySelector(".today-weather-forecast .today-weather-cards")
+  container.innerHTML = "" // 1) Töm bort gamla kort (om man byter stad)
+
+  // 2) Ta ut första 12 posterna (ca 36 timmar i SMHI pmp3g; vi visar t.ex. varannan)
+  const hours = data.timeSeries.slice(0, 12)
+  for (let i = 0; i < hours.length; i += 2) {
+    const entry = hours[i]
+    const time = entry.validTime.split("T")[1].slice(0, 5) // "HH:mm"
+    const temp = pick(entry, "t")
+    const code = pick(entry, "Wsymb2")
+    const icon = icons[code] || ""
+
+    // 3) Bygg ett kort (div) och lägg in i containern
+    const card = document.createElement("div")
+    card.className = "today-weather-card"
+    card.innerHTML = `
       <p class="today-time">${time}</p>
-      ${typeof icon === 'string' && icon.endsWith('.svg') ? `<img class='today-icon-img' src='${icon}' alt='' style='width:32px;height:32px;vertical-align:middle;'/>` : `<icon class='today-icon'>${icon}</icon>`}
-      <p class="today-degree">${temp}\u00b0C</p>
-    `;
-        container.appendChild(card);
-    }
+      <img class="today-icon-img" src="${icon}" alt="${code}" width="32" height="32" />
+      <p class="today-degree">${temp}°C</p>
+    `
+    container.appendChild(card)
+  }
 }
-// 3.3 7-Day Forecast
-function renderWeakWeather(data) {
-    const container = document.querySelector('.weak-weather-cards');
-    if (!container)
-        return;
-    container.innerHTML = '';
-    const days = groupByDate(data.timeSeries);
-    const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    let dayIndex = 0;
-    for (const date in days) {
-        if (dayIndex >= 7)
-            break;
-        const entries = days[date];
-        if (!entries || entries.length === 0)
-            continue;
-        const temps = entries.map((e) => getParam(e, 't')).filter((v) => typeof v === 'number');
-        const minTemp = temps.length ? Math.min(...temps) : '?';
-        const maxTemp = temps.length ? Math.max(...temps) : '?';
-        const midEntry = entries[Math.floor(entries.length / 2)];
-        const code = getParam(midEntry, 'Wsymb2');
-        const icon = typeof code === 'number' ? getWeatherIcon(code) : '❓';
-        const desc = typeof code === 'number' ? getWeatherDescription(code) : 'Unknown';
-        const d = new Date(date);
-        const dayName = dayIndex === 0 ? 'Today' : dayNames[d.getDay()];
-        const card = document.createElement('div');
-        card.className = 'weak-weather-card';
-        card.innerHTML = `
-      <p class="weak-day">${dayName}</p>
+
+// (C) 4-dagars prognos (enkelt: min/max per dag + en ikon från "mitten" av dagen)
+function renderForecast(data) {
+  const container = document.querySelector(".weak-weather-cards")
+  container.innerHTML = "" // töm gammalt
+
+  const grouped = groupByDate(data.timeSeries)           // { "YYYY-MM-DD": [entries...] }
+  const dayNames = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"]
+  let printed = 0
+
+  for (const date in grouped) {
+    if (printed >= 4) break // visa bara 4 dagar för en clean layout
+
+    const entries = grouped[date]
+
+    // Hämta alla temperaturer för datumet -> räkna ut min/max
+    const temps = entries
+      .map(e => pick(e, "t"))
+      .filter(v => typeof v === "number")
+    const minT = temps.length ? Math.min(...temps) : "?"
+    const maxT = temps.length ? Math.max(...temps) : "?"
+
+    // Välj en mittenpost för att representera "dagens väder" med ikon/typ
+    const mid   = entries[Math.floor(entries.length / 2)]
+    const code  = pick(mid, "Wsymb2")
+    const icon  = icons[code] || ""
+    const desc  = weatherText[code] || "—"
+
+    // Dagens namn: "Today" för första, annars veckodag
+    const d = new Date(date)
+    const label = (printed === 0) ? "Today" : dayNames[d.getDay()]
+
+    // Bygg dagkortet och lägg in i DOM
+    const card = document.createElement("div")
+    card.className = "weak-weather-card"
+    card.innerHTML = `
+      <p class="weak-day">${label}</p>
       <div class="weak-two">
-        ${typeof icon === 'string' && icon.endsWith('.svg') ? `<img class='weak-icon-img' src='${icon}' alt='${desc}' style='width:32px;height:32px;vertical-align:middle;'/>` : `<icon class='weak-icon'>${icon}</icon>`}
+        <img class="weak-icon-img" src="${icon}" alt="${desc}" width="32" height="32" />
         <p class="weak-weather-info">${desc}</p>
       </div>
-      <p class="weak-degree">${minTemp} / ${maxTemp}</p>
-    `;
-        container.appendChild(card);
-        dayIndex++;
-    }
+      <p class="weak-degree">${minT} / ${maxT}</p>
+    `
+    container.appendChild(card)
+    printed++
+  }
 }
-// ===== 4. Main Event Handler =====
-window.addEventListener('DOMContentLoaded', () => {
-    const citySelect = document.getElementById('citySelect');
-    const geoBtn = document.getElementById('geoLocateBtn');
-    if (!citySelect)
-        return;
-    async function loadAndRenderWeather(cityName) {
-        const selectedCity = CITIES.find(city => city.name === cityName);
-        if (selectedCity) {
-            try {
-                const data = await fetchWeatherData(selectedCity.lat, selectedCity.lon);
-                renderTodayWeatherView(selectedCity.name, data);
-                renderTodayWeatherForecast(data);
-                renderWeakWeather(data);
-            }
-            catch (err) {
-                console.error('Failed to fetch weather data:', err);
-            }
+
+// 5) “HUVUDPROGRAM” – START OCH EVENT
+
+window.addEventListener("DOMContentLoaded", () => {
+  // 1) Hämta referenser till <select> och knappen “My Location”
+  const select = document.getElementById("citySelect")
+  const geoBtn = document.getElementById("geoLocateBtn")
+
+  // 2) Hjälpare: ladda och rendera för vald stad (namn -> lat/lon -> hämta -> skriv ut)
+  async function loadCity(cityName) {
+    const city = cities.find(c => c.name === cityName)
+    if (!city) return
+    const data = await getWeather(city.lat, city.lon)
+    renderToday(data, city.name, city.lat, city.lon)
+    renderHourly(data)
+    renderForecast(data)
+  }
+
+  // 3) Hjälpare: ladda och rendera för koordinater (användarens position)
+  async function loadCoords(lat, lon) {
+    const data = await getWeather(lat, lon)
+    renderToday(data, "My Location", lat, lon) // skicka lat/lon så soltider blir rätt
+    renderHourly(data)
+    renderForecast(data)
+    select.value = "" // töm valt stadsvärde för att signalera “egen plats”
+  }
+
+  // 4) När användaren byter stad i <select> -> ladda den
+  if (select) {
+    select.addEventListener("change", () => {
+      if (select.value) loadCity(select.value)
+    })
+  }
+
+  // 5) När man klickar på “My Location” -> använd webbläsarens geolocation-API
+  if (geoBtn) {
+    geoBtn.addEventListener("click", () => {
+      if (!navigator.geolocation) {
+        alert("Din webbläsare stöder inte platsinformation.")
+        return
+      }
+
+      const original = geoBtn.textContent
+      geoBtn.textContent = "Locating…"
+
+      navigator.geolocation.getCurrentPosition(
+        pos => {
+          geoBtn.textContent = original
+          loadCoords(pos.coords.latitude, pos.coords.longitude)
+        },
+        err => {
+          geoBtn.textContent = original
+          alert("Kunde inte hämta din plats.")
+          console.log("Geolocation error:", err)
         }
-    }
-    async function loadAndRenderWeatherByCoords(lat, lon) {
-        try {
-            const data = await fetchWeatherData(lat, lon);
-            renderTodayWeatherView('Current Location', data);
-            renderTodayWeatherForecast(data);
-            renderWeakWeather(data);
-            if (citySelect)
-                citySelect.value = '';
-        }
-        catch (err) {
-            alert('Failed to fetch weather for your location.');
-            console.error('Geolocation weather error:', err);
-        }
-    }
-    citySelect.addEventListener('change', async () => {
-        if (citySelect.value) {
-            await loadAndRenderWeather(citySelect.value);
-        }
-    });
-    if (geoBtn) {
-        geoBtn.addEventListener('click', () => {
-            if (!navigator.geolocation) {
-                alert('Geolocation is not supported by your browser.');
-                return;
-            }
-            geoBtn.disabled = true;
-            geoBtn.textContent = 'Locating...';
-            navigator.geolocation.getCurrentPosition((position) => {
-                geoBtn.disabled = false;
-                geoBtn.textContent = '🌍 My Location';
-                const { latitude, longitude } = position.coords;
-                loadAndRenderWeatherByCoords(latitude, longitude);
-            }, (error) => {
-                geoBtn.disabled = false;
-                geoBtn.textContent = '🌍 My Location';
-                alert('Unable to retrieve your location.');
-            });
-        });
-    }
-    citySelect.value = 'Stockholm';
-    loadAndRenderWeather('Stockholm');
-});
-// ===== 5. Fetch Weather Data =====
-async function fetchWeatherData(lat, lon) {
-    const url = getSmhiForecastUrl(lat, lon);
-    const response = await fetch(url);
-    if (!response.ok)
-        throw new Error('Network response was not ok');
-    return response.json();
-}
-export {};
-//# sourceMappingURL=index.js.map
+      )
+    })
+  }
+
+  // 6) Startläge: välj “Stockholm” och ladda direkt när sidan öppnas
+  if (select) {
+    select.value = "Stockholm"
+    loadCity("Stockholm")
+  }
+})
