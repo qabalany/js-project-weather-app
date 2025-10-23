@@ -1,3 +1,4 @@
+@import "animations.css";
 /* Make today-weather-details icons larger and visually appealing */
 .today-weather-details .details-icon {
   font-size: 2.8rem;
@@ -175,7 +176,7 @@ body {
 
 .main {
   display: flex;
-  align-items: flex-start;
+  align-items: stretch;
   gap: 1.5rem;
 }
 
@@ -198,12 +199,11 @@ body {
 
 /* SIDEBAR DEDIGHN */
 
+/* .sidebar removed for no sidebar UI */
 .sidebar {
   background-color: var(--color-milkwhite);
   border-radius: 1.5rem;
-  height: 100vh;
-  padding: 3rem 1rem;
-}
+  padding: 3rem 1rem;}
 
 .main-nav {
   display: flex;
@@ -232,6 +232,25 @@ body {
   gap: 5px;
 }
 
+.nav-toggle-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.nav-toggle-btn .nav-icon {
+  color: #c1cad3 !important; /* Ensure toggle button icon is gray like other nav items */
+}
+
+.nav-toggle-btn .nav-text {
+  color: #c1cad3 !important; /* Ensure toggle button text is gray like other nav items */
+}
+
 .nav-text {
   font-size: 1.3rem;
   font-weight: 500;
@@ -242,10 +261,8 @@ body {
 .today-weather {
   border-radius: 1.5rem;
   flex: 2;
-  height: 95vh;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
   gap: 1.5rem;
 }
 
@@ -265,6 +282,10 @@ h3 {
   background-color: var(--color-milkwhite);
   border-radius: 1.3rem;
   padding: 1rem;
+  flex-shrink: 0; /* Prevent shrinking to maintain consistent height */
+  flex: 0 0 auto; /* Don't grow, use content height */
+  display: flex;
+  align-items: center; /* Center the search form vertically */
 }
 
 .weather-search__form {
@@ -306,8 +327,21 @@ h3 {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 2rem;
+  padding: 3rem;
   flex: 1;
+  overflow: hidden; /* Clip shooting stars to card boundaries */
+  min-height: 25rem; /* Minimum height to prevent shrinking */
+  min-width: 40rem; /* Minimum width to prevent horizontal shrinking */
+}
+
+.today-weather-view.night-mode {
+  background: #122a42; /* Dark blue for night mode */
+}
+
+.today-weather-view.night-mode .today-weather-title h1,
+.today-weather-view.night-mode .today-weather-title h2,
+.today-weather-view.night-mode .today-weather-title p {
+  color: white;
 }
 
 .today-weather-title {
@@ -315,6 +349,11 @@ h3 {
   flex-direction: column;
   justify-content: space-between;
   width: 100%;
+}
+
+.today-weather-title p {
+  font-weight: 600;
+  font-size: 1.8rem;
 }
 
 .today-weather-icon {
@@ -375,14 +414,32 @@ h2 {
   }
 }
 
+
 .today-weather-cards {
-  display: flex;
+  display: grid;
+  /* Show 6 columns for large screens */
+  grid-template-columns: repeat(6, 1fr);
+  gap: 1rem;
   align-items: center;
   justify-content: space-between;
 }
 
-@media only screen and (max-width: 37.5em) {
-  /* 600px / 16 */
+@media only screen and (max-width: 56.25em) {
+  /* ≤900px */
+  .today-weather-cards {
+     grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media only screen and (max-width: 25em) {
+  /* ≤400px - Jump to 2 columns only on very small screens */
+  .today-weather-cards {
+     grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media only screen and (max-width: 25em) {
+  /* 400px / 16 - Very small screens only */
   .today-weather-cards {
     align-items: flex-start;
     gap: 1rem;
@@ -403,6 +460,19 @@ h2 {
   border-radius: 1rem;
   gap: 1rem;
   transition: 0.3s;
+}
+
+.today-weather-card, .weak-weather-card {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeInUp 0.5s ease-out forwards;
+}
+
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .today-weather-card:hover {
@@ -496,10 +566,10 @@ h4 {
   background-color: var(--color-milkwhite);
   border-radius: 1.3rem;
   flex: 1;
-  height: 100%;
   padding: 2rem;
-  display: grid;
-  grid-template-columns: repeat(1, fr);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
   width: 100%;
 }
 
@@ -521,11 +591,10 @@ h4 {
 .weak-weather-cards {
   display: flex;
   flex-direction: column;
-  align-items: center;
   justify-content: space-between;
   width: 100%;
   gap: 1rem;
-  height: 100%;
+  flex: 1; /* Fill available space */
 }
 
 .weak-weather-card {

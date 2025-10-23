@@ -1,0 +1,373 @@
+/* === ANIMATIONS.CSS ===
+   Custom animations for the weather app.
+   Includes night mode starry background animation inspired by CodePen.
+   Also includes daytime animated background with floating particles.
+*/
+
+/* === DAYTIME ANIMATION ===
+   Animated gradient background with floating light particles for sunny daytime effect.
+*/
+.today-weather-view.day-mode-animation {
+  position: relative;
+  background: #3cb9f3;
+}
+
+.today-weather-view.day-mode-animation::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image:
+    radial-gradient(ellipse 100px 100px at 20% 80%, rgba(255, 255, 255, 0.6) 0%, transparent 70%),
+    radial-gradient(ellipse 80px 80px at 80% 20%, rgba(255, 255, 255, 0.6) 0%, transparent 70%),
+    radial-gradient(ellipse 60px 60px at 40% 40%, rgba(255, 255, 255, 0.4) 0%, transparent 70%);
+  animation: floatParticles 15s ease-in-out infinite;
+  border-radius: 1.3rem;
+  pointer-events: none;
+}
+
+@keyframes dayGradient {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes floatParticles {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg) scale(1);
+    opacity: 0.4;
+  }
+  25% {
+    transform: translateY(-40px) rotate(90deg) scale(1.1);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translateY(-80px) rotate(180deg) scale(0.9);
+    opacity: 0.4;
+  }
+  75% {
+    transform: translateY(-40px) rotate(270deg) scale(1.1);
+    opacity: 0.6;
+  }
+}
+
+/* === NIGHT MODE STARRY ANIMATION ===
+   Shooting stars animation for dark mode inspired by CodePen.
+*/
+.today-weather-view.night-mode {
+  background: #122a42; /* Dark blue for night mode */
+  position: relative;
+}
+
+.today-weather-view.night-mode .stars {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  transform: rotateZ(45deg);
+  z-index: 1;
+}
+
+/* Shooting stars from CodePen */
+.today-weather-view.night-mode .stars .shooting_star {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  height: 2px;
+  background: linear-gradient(-45deg, rgb(1, 66, 206), rgba(0, 0, 255, 0));
+  border-radius: 999px;
+  filter: drop-shadow(0 0 6px rgba(105, 155, 255, 1));
+  animation:
+    tail 5000ms ease-in-out infinite,
+    shooting 5000ms ease-in-out infinite;
+}
+
+.today-weather-view.night-mode .stars .shooting_star::before {
+  content: '';
+  position: absolute;
+  top: calc(50% - 1px);
+  right: 0;
+  height: 2px;
+  background: linear-gradient(-45deg, rgba(0, 0, 255, 0), rgba(95, 145, 255, 1), rgba(0, 0, 255, 0));
+  transform: translateX(50%) rotateZ(45deg);
+  border-radius: 100%;
+  animation: shining 5000ms ease-in-out infinite;
+}
+
+.today-weather-view.night-mode .stars .shooting_star::after {
+  content: '';
+  position: absolute;
+  top: calc(50% - 1px);
+  right: 0;
+  height: 2px;
+  background: linear-gradient(-45deg, rgba(0, 0, 255, 0), rgb(9, 68, 194), rgba(0, 0, 255, 0));
+  transform: translateX(50%) rotateZ(-45deg);
+  border-radius: 100%;
+  animation: shining 5000ms ease-in-out infinite;
+}
+
+/* Generate random positions and delays for each shooting star */
+.today-weather-view.night-mode .stars .shooting1 {
+  top: 20%;
+  left: 15%;
+  animation-delay: 1234ms;
+}
+.today-weather-view.night-mode .stars .shooting1::before,
+.today-weather-view.night-mode .stars .shooting1::after {
+  animation-delay: 1234ms;
+}
+
+.today-weather-view.night-mode .stars .shooting2 {
+  top: 60%;
+  left: 80%;
+  animation-delay: 5678ms;
+}
+.today-weather-view.night-mode .stars .shooting2::before,
+.today-weather-view.night-mode .stars .shooting2::after {
+  animation-delay: 5678ms;
+}
+
+.today-weather-view.night-mode .stars .shooting3 {
+  top: 10%;
+  left: 70%;
+  animation-delay: 2345ms;
+}
+.today-weather-view.night-mode .stars .shooting3::before,
+.today-weather-view.night-mode .stars .shooting3::after {
+  animation-delay: 2345ms;
+}
+
+.today-weather-view.night-mode .stars .shooting4 {
+  top: 80%;
+  left: 30%;
+  animation-delay: 7890ms;
+}
+.today-weather-view.night-mode .stars .shooting4::before,
+.today-weather-view.night-mode .stars .shooting4::after {
+  animation-delay: 7890ms;
+}
+
+.today-weather-view.night-mode .stars .shooting5 {
+  top: 35%;
+  left: 85%;
+  animation-delay: 3456ms;
+}
+.today-weather-view.night-mode .stars .shooting5::before,
+.today-weather-view.night-mode .stars .shooting5::after {
+  animation-delay: 3456ms;
+}
+
+.today-weather-view.night-mode .stars .shooting6 {
+  top: 15%;
+  left: 45%;
+  animation-delay: 6789ms;
+}
+.today-weather-view.night-mode .stars .shooting6::before,
+.today-weather-view.night-mode .stars .shooting6::after {
+  animation-delay: 6789ms;
+}
+
+.today-weather-view.night-mode .stars .shooting7 {
+  top: 70%;
+  left: 10%;
+  animation-delay: 4567ms;
+}
+.today-weather-view.night-mode .stars .shooting7::before,
+.today-weather-view.night-mode .stars .shooting7::after {
+  animation-delay: 4567ms;
+}
+
+.today-weather-view.night-mode .stars .shooting8 {
+  top: 45%;
+  left: 60%;
+  animation-delay: 8901ms;
+}
+.today-weather-view.night-mode .stars .shooting8::before,
+.today-weather-view.night-mode .stars .shooting8::after {
+  animation-delay: 8901ms;
+}
+
+.today-weather-view.night-mode .stars .shooting9 {
+  top: 25%;
+  left: 90%;
+  animation-delay: 1123ms;
+}
+.today-weather-view.night-mode .stars .shooting9::before,
+.today-weather-view.night-mode .stars .shooting9::after {
+  animation-delay: 1123ms;
+}
+
+.today-weather-view.night-mode .stars .shooting10 {
+  top: 55%;
+  left: 25%;
+  animation-delay: 4456ms;
+}
+.today-weather-view.night-mode .stars .shooting10::before,
+.today-weather-view.night-mode .stars .shooting10::after {
+  animation-delay: 4456ms;
+}
+
+.today-weather-view.night-mode .stars .shooting11 {
+  top: 5%;
+  left: 55%;
+  animation-delay: 7789ms;
+}
+.today-weather-view.night-mode .stars .shooting11::before,
+.today-weather-view.night-mode .stars .shooting11::after {
+  animation-delay: 7789ms;
+}
+
+.today-weather-view.night-mode .stars .shooting12 {
+  top: 75%;
+  left: 75%;
+  animation-delay: 3345ms;
+}
+.today-weather-view.night-mode .stars .shooting12::before,
+.today-weather-view.night-mode .stars .shooting12::after {
+  animation-delay: 3345ms;
+}
+
+.today-weather-view.night-mode .stars .shooting13 {
+  top: 40%;
+  left: 5%;
+  animation-delay: 6678ms;
+}
+.today-weather-view.night-mode .stars .shooting13::before,
+.today-weather-view.night-mode .stars .shooting13::after {
+  animation-delay: 6678ms;
+}
+
+.today-weather-view.night-mode .stars .shooting14 {
+  top: 30%;
+  left: 35%;
+  animation-delay: 2234ms;
+}
+.today-weather-view.night-mode .stars .shooting14::before,
+.today-weather-view.night-mode .stars .shooting14::after {
+  animation-delay: 2234ms;
+}
+
+.today-weather-view.night-mode .stars .shooting15 {
+  top: 65%;
+  left: 50%;
+  animation-delay: 5567ms;
+}
+.today-weather-view.night-mode .stars .shooting15::before,
+.today-weather-view.night-mode .stars .shooting15::after {
+  animation-delay: 5567ms;
+}
+
+.today-weather-view.night-mode .stars .shooting16 {
+  top: 50%;
+  left: 95%;
+  animation-delay: 8890ms;
+}
+.today-weather-view.night-mode .stars .shooting16::before,
+.today-weather-view.night-mode .stars .shooting16::after {
+  animation-delay: 8890ms;
+}
+
+.today-weather-view.night-mode .stars .shooting17 {
+  top: 85%;
+  left: 40%;
+  animation-delay: 4456ms;
+}
+.today-weather-view.night-mode .stars .shooting17::before,
+.today-weather-view.night-mode .stars .shooting17::after {
+  animation-delay: 4456ms;
+}
+
+.today-weather-view.night-mode .stars .shooting18 {
+  top: 20%;
+  left: 80%;
+  animation-delay: 7789ms;
+}
+.today-weather-view.night-mode .stars .shooting18::before,
+.today-weather-view.night-mode .stars .shooting18::after {
+  animation-delay: 7789ms;
+}
+
+.today-weather-view.night-mode .stars .shooting19 {
+  top: 90%;
+  left: 65%;
+  animation-delay: 3345ms;
+}
+.today-weather-view.night-mode .stars .shooting19::before,
+.today-weather-view.night-mode .stars .shooting19::after {
+  animation-delay: 3345ms;
+}
+
+.today-weather-view.night-mode .stars .shooting20 {
+  top: 55%;
+  left: 15%;
+  animation-delay: 6678ms;
+}
+.today-weather-view.night-mode .stars .shooting20::before,
+.today-weather-view.night-mode .stars .shooting20::after {
+  animation-delay: 6678ms;
+}
+
+@keyframes tail {
+  0% {
+    width: 0;
+  }
+  30% {
+    width: 60px;
+  }
+  100% {
+    width: 0;
+  }
+}
+
+@keyframes shining {
+  0% {
+    width: 0;
+  }
+  50% {
+    width: 20px;
+  }
+  100% {
+    width: 0;
+  }
+}
+
+@keyframes shooting {
+  0% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  70% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(180px);
+    opacity: 0;
+  }
+}
+
+/* Ensure text and icons are above the animation layer */
+.today-weather-view.night-mode .today-weather-title,
+.today-weather-view.night-mode .today-weather-icon {
+  position: relative;
+  z-index: 2;
+}
+
+.today-weather-view.night-mode .today-weather-icon {
+  height: 12rem;
+  width: 12rem;
+  align-self: flex-end;
+}
+
+.today-weather-view.night-mode .today-weather-title {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 100%;
+}

@@ -1,11 +1,8 @@
 
-// --- INTERFACE: City ---
-// Represents a city with a name and coordinates (latitude, longitude).
-interface City {
-  name: string;
-  lat: number;
-  lon: number;
-}
+// --- IMPORTS ---
+// Import animation functions from the animations module.
+// import { updateNightMode, toggleNightModeAnimation } from './animations';
+import { toggleNightModeAnimation, toggleDayModeAnimation, updateNightMode, initializeDayNightToggle } from './animations.js';
 
 // --- INTERFACE: Parameter ---
 // Represents a weather parameter (e.g., temperature, humidity) and its values.
@@ -32,6 +29,14 @@ interface WeatherData {
 interface SunTimes {
   sunrise: string;
   sunset: string;
+}
+
+// --- INTERFACE: City ---
+// Represents a city with a name and coordinates (latitude, longitude).
+interface City {
+  name: string;
+  lat: number;
+  lon: number;
 }
 
 // --- CONST: cities ---
@@ -156,14 +161,9 @@ async function getWeather(lat: number, lon: number): Promise<WeatherData> {
 }
 
 // --- FUNCTION: renderToday ---
-// Renders the current weather for the selected city/location.
-// Updates the UI with today's weather, including temperature, icon, humidity, wind, and real feel.
-function renderToday(
-  data: WeatherData,
-  cityName: string,
-  lat: number,
-  lon: number
-): void {
+// Renders today's weather data into the UI, including temperature, description, icon, and details.
+// Also fetches and displays sunrise/sunset times, and updates night mode.
+function renderToday(data: WeatherData, cityName: string, lat: number, lon: number): void {
   const now = data.timeSeries[0];
   if (!now) return;
   const temp = pick(now, "t");
@@ -213,6 +213,7 @@ function renderToday(
     getSunTimes(lat, lon).then(({ sunrise, sunset }) => {
       if (detailValues[3])
         detailValues[3].textContent = `↑${sunrise}  ↓${sunset}`;
+      updateNightMode(sunrise, sunset);
     });
   }
 }
@@ -241,6 +242,9 @@ function renderHourly(data: WeatherData): void {
       <p class="today-degree">${temp}°C</p>
     `;
     container.appendChild(card);
+  // Add fade-in animation with staggered delay
+    card.classList.add('fade-in');
+    card.style.animationDelay = `${(i / 2) * 0.1}s`;
   }
 }
 
@@ -254,7 +258,7 @@ function renderForecast(data: WeatherData): void {
   const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   let printed = 0;
   for (const date in grouped) {
-    if (printed >= 4) break;
+    if (printed >= 7) break;
     const entries = grouped[date];
     if (!entries) continue;
     const temps = entries
@@ -277,9 +281,12 @@ function renderForecast(data: WeatherData): void {
         <img class="weak-icon-img" src="${icon}" alt="${desc}" width="32" height="32" />
         <p class="weak-weather-info">${desc}</p>
       </div>
-      <p class="weak-degree">Min: <span class="degree-bold">${minTemp}</span> / Max: <span class="degree-bold">${maxTemp}</span></p>
+      <p class="weak-degree"> <span class="degree-bold">${minTemp}</span> /  <span class="degree-bold">${maxTemp}</span></p>
     `;
     container.appendChild(card);
+    // Add fade-in animation with staggered delay
+    card.classList.add('fade-in');
+    card.style.animationDelay = `${printed * 0.1}s`;
     printed++;
   }
 }
@@ -337,6 +344,19 @@ window.addEventListener("DOMContentLoaded", () => {
       );
     });
   }
+
+  // Initialize day/night toggle button from animations module
+  initializeDayNightToggle(() => {
+    // Reload current city to apply the mode change
+    const select = document.getElementById("citySelect") as HTMLSelectElement | null;
+    if (select && select.value) {
+      loadCity(select.value);
+    } else {
+      // If no city selected, reload Stockholm as default
+      loadCity("Stockholm");
+    }
+  });
+
   if (select) {
     select.value = "Stockholm";
     loadCity("Stockholm");
