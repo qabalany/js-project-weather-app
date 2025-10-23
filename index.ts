@@ -1,5 +1,3 @@
-
-
 type City = {
   name: string;
   lat: number;
