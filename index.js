@@ -138,7 +138,7 @@ function renderToday(data, cityName, lat, lon) {
             h1.textContent = `Sweden, ${cityName}`;
         const h2 = titleEl.querySelector("h2");
         if (h2)
-            h2.textContent = `${temp}°C`;
+            h2.textContent = `${Math.round(temp || 0)}°C`;
         const p = titleEl.querySelector("p");
         if (p)
             p.textContent = desc;
@@ -153,7 +153,7 @@ function renderToday(data, cityName, lat, lon) {
     if (detailValues[0]) {
         if (typeof temp === "number" && typeof rh === "number") {
             const humidex = calculateHumidex(temp, rh);
-            detailValues[0].textContent = `${humidex.toFixed(1)}°C`;
+            detailValues[0].textContent = `${Math.round(humidex)}°C`;
         }
         else {
             detailValues[0].textContent = "Real Feel: N/A";
@@ -196,7 +196,7 @@ function renderHourly(data) {
         card.innerHTML = `
       <p class="today-time">${time}</p>
       <img class="today-icon-img" src="${icon}" alt="${code}" width="32" height="32" />
-      <p class="today-degree">${temp}°C</p>
+      <p class="today-degree">${Math.round(temp || 0)}°C</p>
     `;
         container.appendChild(card);
         // Add fade-in animation with staggered delay
@@ -223,8 +223,8 @@ function renderForecast(data) {
         const temps = entries
             .map((e) => pick(e, "t"))
             .filter((v) => typeof v === "number");
-        const minTemp = temps.length ? Math.min(...temps) : "?";
-        const maxTemp = temps.length ? Math.max(...temps) : "?";
+        const minTemp = temps.length ? Math.round(Math.min(...temps)) : "?";
+        const maxTemp = temps.length ? Math.round(Math.max(...temps)) : "?";
         const mid = entries[Math.floor(entries.length / 2)];
         if (!mid)
             continue;
@@ -241,7 +241,7 @@ function renderForecast(data) {
         <img class="weak-icon-img" src="${icon}" alt="${desc}" width="32" height="32" />
         <p class="weak-weather-info">${desc}</p>
       </div>
-      <p class="weak-degree"> <span class="degree-bold">${minTemp}</span> /  <span class="degree-bold">${maxTemp}</span></p>
+      <p class="weak-degree">Min <span class="degree-bold">${minTemp}</span> / Max <span class="degree-bold">${maxTemp}</span></p>
     `;
         container.appendChild(card);
         // Add fade-in animation with staggered delay
