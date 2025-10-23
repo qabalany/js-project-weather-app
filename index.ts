@@ -83,7 +83,6 @@ const weatherText: { [key: number]: string } = {
 
 // --- FUNCTION: calculateHumidex ---
 // Calculates the Humidex (real feel) temperature using air temperature and relative humidity.
-// Why: Gives a better sense of how hot it feels to humans, not just the measured temperature.
 function calculateHumidex(tempC: number, rh: number): number {
   const a = 17.27;
   const b = 237.7;
@@ -95,14 +94,13 @@ function calculateHumidex(tempC: number, rh: number): number {
 
 // --- FUNCTION: getSmhiUrl ---
 // Builds the SMHI API URL for a given latitude and longitude.
-// Why: Centralizes URL construction for weather data fetches.
 function getSmhiUrl(lat: number, lon: number): string {
   return `https://opendata-download-metfcst.smhi.se/api/category/pmp3g/version/2/geotype/point/lon/${lon}/lat/${lat}/data.json`;
 }
 
 // --- FUNCTION: pick ---
 // Extracts a specific parameter value (e.g., temperature) from a time series entry.
-// Why: Simplifies access to weather parameters by name.
+// Simplifies access to weather parameters by name.
 function pick(entry: TimeSeriesEntry, paramName: string): number | undefined {
   const param = entry.parameters.find((p: Parameter) => p.name === paramName);
   return param ? param.values[0] : undefined;
@@ -110,7 +108,7 @@ function pick(entry: TimeSeriesEntry, paramName: string): number | undefined {
 
 // --- FUNCTION: groupByDate ---
 // Groups time series entries by date (YYYY-MM-DD).
-// Why: Makes it easy to display daily summaries from hourly data.
+// Makes it easy to display daily summaries from hourly data.
 function groupByDate(timeSeries: TimeSeriesEntry[]): { [date: string]: TimeSeriesEntry[] } {
   const groups: { [date: string]: TimeSeriesEntry[] } = {};
   timeSeries.forEach((entry: TimeSeriesEntry) => {
@@ -124,7 +122,6 @@ function groupByDate(timeSeries: TimeSeriesEntry[]): { [date: string]: TimeSerie
 
 // --- FUNCTION: getSunTimes ---
 // Fetches sunrise and sunset times for a given location using the sunrise-sunset.org API.
-// Why: Adds extra context to the weather display (daylight hours).
 async function getSunTimes(lat: number, lon: number): Promise<SunTimes> {
   const today = new Date().toISOString().split("T")[0];
   const url = `https://api.sunrise-sunset.org/json?lat=${lat}&lng=${lon}&date=${today}&formatted=0`;
@@ -150,7 +147,7 @@ async function getSunTimes(lat: number, lon: number): Promise<SunTimes> {
 
 // --- FUNCTION: getWeather ---
 // Fetches weather data from the SMHI API for a given location.
-// Why: Main entry point for retrieving weather forecasts.
+// Main entry point for retrieving weather forecasts.
 async function getWeather(lat: number, lon: number): Promise<WeatherData> {
   const url = getSmhiUrl(lat, lon);
   const res = await fetch(url);
@@ -160,7 +157,7 @@ async function getWeather(lat: number, lon: number): Promise<WeatherData> {
 
 // --- FUNCTION: renderToday ---
 // Renders the current weather for the selected city/location.
-// Why: Updates the UI with today's weather, including temperature, icon, humidity, wind, and real feel.
+// Updates the UI with today's weather, including temperature, icon, humidity, wind, and real feel.
 function renderToday(
   data: WeatherData,
   cityName: string,
@@ -195,32 +192,33 @@ function renderToday(
   const detailValues = document.querySelectorAll(
     ".today-weather-details-grid-card h4"
   );
-  if (detailValues[0])
-    detailValues[0].textContent = temp != null ? `${temp}°C` : "N/A";
-  if (detailValues[1])
-    detailValues[1].textContent = rh != null ? `${rh}%` : "N/A";
-  if (detailValues[2])
-    detailValues[2].textContent =
-      windKmH != null ? `${windKmH.toFixed(1)} km/h` : "N/A";
-  // Humidex (Real Feel)
-  if (detailValues[3]) {
+  // Show Real Feel (Humidex) in the first card
+  if (detailValues[0]) {
     if (typeof temp === "number" && typeof rh === "number") {
       const humidex = calculateHumidex(temp, rh);
-      detailValues[3].textContent = `Real Feel: ${humidex.toFixed(1)}°C`;
+      detailValues[0].textContent = `${humidex.toFixed(1)}°C`;
     } else {
-      detailValues[3].textContent = "Real Feel: N/A";
+      detailValues[0].textContent = "Real Feel: N/A";
     }
   }
-  // Optionally, show sunrise/sunset in a tooltip or elsewhere if needed
-  // getSunTimes(lat, lon).then(({ sunrise, sunset }) => {
-  //   if (detailValues[3])
-  //     detailValues[3].textContent = `↑${sunrise}  ↓${sunset}`;
-  // });
+  // Show humidity in the second card
+  if (detailValues[1])
+    detailValues[1].textContent = rh != null ? `${rh}%` : "N/A";
+  // Show wind in the third card
+  if (detailValues[2])
+    detailValues[2].textContent = windKmH != null ? `${windKmH.toFixed(1)} km/h` : "N/A";
+  // Show sunrise/sunset in the fourth card
+  if (detailValues[3]) {
+    detailValues[3].textContent = "Loading…";
+    getSunTimes(lat, lon).then(({ sunrise, sunset }) => {
+      if (detailValues[3])
+        detailValues[3].textContent = `↑${sunrise}  ↓${sunset}`;
+    });
+  }
 }
 
 // --- FUNCTION: renderHourly ---
-// Renders the hourly weather forecast for the current day.
-// Why: Shows users how the weather will change throughout the day.
+// Renders 2-hour weather forecast for the next 12 hours.
 function renderHourly(data: WeatherData): void {
   const container = document.querySelector(
     ".today-weather-forecast .today-weather-cards"
@@ -247,8 +245,7 @@ function renderHourly(data: WeatherData): void {
 }
 
 // --- FUNCTION: renderForecast ---
-// Renders the daily weather forecast for the next several days.
-// Why: Gives users a quick overview of the upcoming weather.
+// Renders the daily weather forecast for the next four days.
 function renderForecast(data: WeatherData): void {
   const container = document.querySelector(".weak-weather-cards");
   if (!container) return;
@@ -289,7 +286,6 @@ function renderForecast(data: WeatherData): void {
 
 // --- FUNCTION: loadCity ---
 // Loads and renders weather for a selected city by name.
-// Why: Allows user to pick a city and see its weather instantly.
 async function loadCity(cityName: string): Promise<void> {
   const city = cities.find((c) => c.name === cityName);
   if (!city) return;
@@ -301,7 +297,6 @@ async function loadCity(cityName: string): Promise<void> {
 
 // --- FUNCTION: loadCoords ---
 // Loads and renders weather for a given latitude and longitude (e.g., user's geolocation).
-// Why: Supports "My Location" feature for personalized weather.
 async function loadCoords(lat: number, lon: number): Promise<void> {
   const data = await getWeather(lat, lon);
   renderToday(data, "My Location", lat, lon);
@@ -313,7 +308,6 @@ async function loadCoords(lat: number, lon: number): Promise<void> {
 
 // --- MAIN: DOMContentLoaded event ---
 // Sets up event listeners and loads initial weather data when the page is ready.
-// Why: Initializes the app and connects UI controls to logic.
 window.addEventListener("DOMContentLoaded", () => {
   const select = document.getElementById("citySelect") as HTMLSelectElement | null;
   const geoBtn = document.getElementById("geoLocateBtn");
